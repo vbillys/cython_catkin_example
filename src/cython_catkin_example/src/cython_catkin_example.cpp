@@ -20,8 +20,89 @@
 
 #include <pcl/io/pcd_io.h>
 
+using namespace mrpt;
+using namespace mrpt::utils;
+using namespace mrpt::slam;
+using namespace mrpt::maps;
+using namespace mrpt::obs;
+using namespace mrpt::math;
+using namespace mrpt::poses;
+
+
 using namespace std;
 using namespace pcl;
+
+
+void transferPclPointCloudToXYPointsMap(CCExample::PCloud::Ptr &input_pc,  CSimplePointsMap*  point_map)
+{
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl:;fromPCLPointCloud2(*input_pc, cloud);
+  std::vector<float> xs, ys;
+  for (size_t next = 0; next < cloud.points.size(); ++next)
+  {
+    //velodyne_pointcloud::PointXYZIR _point = input_pc->points.at(next);
+    pcl::PointXYZ _point = cloud.points.at(next);
+    xs.push_back(_point.x);
+    ys.push_back(_point.y);
+  }
+  point_map->setAllPoints(xs, ys);
+
+}
+
+void CCExample::processICP()
+{
+  stringstream ss;
+  if ( pointClouds.find("ref_map") == pointClouds.end() || pointClouds.find("que_map") == pointClouds.end() )
+  {
+    cout << "cannot icp, ref or que not available" << endl;
+    return;
+  }
+  cout << "Processing yeah" << endl;
+  //pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  //pcl::fromROSMsg(*cloud_msg , *cloud);
+  CSimplePointsMap		g_m1,g_m2;
+  transferPclPointCloudToXYPointsMap(pointClouds[string("ref_map")], &g_m1);
+  transferPclPointCloudToXYPointsMap(pointClouds[string("que_map")], &g_m2);
+  float					runningTime;
+  CICP::TReturnInfo		info;
+  CPose2D		initialPose(0.0f,0.0f,(float)DEG2RAD(0.0f));
+
+  CPosePDFPtr pdf = ICP.Align(
+      &g_m1,
+      &g_m2,
+      //g_m1.get(),
+      //g_m2.get(),
+      initialPose,
+      &runningTime,
+      (void*)&info);
+
+  printf("ICP run in %.02fms, %d iterations (%.02fms/iter), %.01f%% goodness\n -> ",
+      runningTime*1000,
+      info.nIterations,
+      runningTime*1000.0f/info.nIterations,
+      info.goodness*100 );
+
+  cout << "Mean of estimation: " << pdf->getMeanVal() << endl<< endl;
+
+  CPosePDFGaussian  gPdf;
+  gPdf.copyFrom(*pdf);
+  CPosePDFGaussianInf gInf(gPdf);
+  mrpt::math::CMatrixDouble33 information_matrix;
+  gInf.getInformationMatrix(information_matrix);
+
+
+  cout << "Covariance of estimation: " << endl << gPdf.cov << endl;
+  cout << "Information of estimation: " << endl << information_matrix << endl;
+
+  cout << " std(x): " << sqrt( gPdf.cov(0,0) ) << endl;
+  cout << " std(y): " << sqrt( gPdf.cov(1,1) ) << endl;
+  cout << " std(phi): " << RAD2DEG(sqrt( gPdf.cov(2,2) )) << " (deg)" << endl;
+
+  mrpt::math::CVectorDouble icp_result;
+  pdf->getMeanVal().getAsVector(icp_result);
+
+}
+
 
 map<string, float> CCExample::getPointXYZCloudDetails(string cloudName) {
     map<string, float> details;
@@ -57,6 +138,19 @@ bool CCExample::loadPointCloudFromArrays(const string& destCloud,
     pointClouds[destCloud] = generalizeCloud<PointXYZ>(temp);
     return true;
 }
+
+bool CCExample::loadPointCloudFrom2DArrays(const string& destCloud,
+    int n,
+    float* xarr,
+    float* yarr) {
+  PointCloud<PointXYZ>::Ptr temp(new PointCloud<PointXYZ>);
+  for (int i = 0; i < n; i++) {
+    temp->push_back(PointXYZ(xarr[i],yarr[i],0));
+  }
+  pointClouds[destCloud] = generalizeCloud<PointXYZ>(temp);
+  return true;
+}
+
 
 void CCExample::deletePointCloud(const string& cloudName) {
 	pointClouds.erase(cloudName);

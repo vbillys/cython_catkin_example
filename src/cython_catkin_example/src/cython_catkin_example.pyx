@@ -24,6 +24,8 @@ cdef extern from "cython_catkin_example.h":
         bool savePointCloudToFile(string cloudName, string fileName)
         bool loadPointCloudFromFile(string cloudName, string fileName)
         void loadPointCloudFromArrays(string destCloud, int n, float *xarr, float *yarr, float *zarr)
+        void loadPointCloudFrom2DArrays(string destCloud, int n, float *xarr, float *yarr)
+        void processICP();
         
 cdef class PyCCExample:
     cdef CCExample *thisptr
@@ -51,3 +53,13 @@ cdef class PyCCExample:
         cdef cnp.ndarray zarr = arr[:,2]
         l = len(xarr)
         self.thisptr.loadPointCloudFromArrays(dest_cloud, l, <float*> xarr.data,<float*> yarr.data,<float*> zarr.data)
+    def load_2d_array(self,dest_cloud,cnp.ndarray[float,ndim=2] arr):
+        assert arr.shape[1] == 2
+        assert arr.shape[0] > 0
+        cdef cnp.ndarray xarr = arr[:,0]
+        cdef cnp.ndarray yarr = arr[:,1]
+        #cdef cnp.ndarray zarr = arr[:,2]
+        l = len(xarr)
+        self.thisptr.loadPointCloudFrom2DArrays(dest_cloud, l, <float*> xarr.data,<float*> yarr.data)
+    def processICP(self):
+        self.thisptr.processICP()

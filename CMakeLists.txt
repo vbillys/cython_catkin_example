@@ -4,6 +4,7 @@ project(cython_catkin_example)
 find_package(catkin REQUIRED COMPONENTS pcl_conversions pcl_ros)
 
 find_package(Eigen REQUIRED)
+find_package(MRPT REQUIRED slam;vision;gui;topography)
 find_package(PCL 1.3 REQUIRED COMPONENTS common io filters surface kdtree visualization features)
 
 catkin_python_setup()
@@ -12,7 +13,7 @@ catkin_package(
   DEPENDS eigen
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} ${PCL_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} /usr/local/include)
 
 # CYTHON MODULE
 set(cython_catkin_example_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/cython_catkin_example)

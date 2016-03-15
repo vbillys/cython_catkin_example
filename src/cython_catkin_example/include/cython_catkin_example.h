@@ -20,6 +20,19 @@
 #ifndef cython_catkin_example_H
 #define cython_catkin_example_H
 
+
+#include <mrpt/maps/CSimplePointsMap.h>
+#include <mrpt/obs/CObservation2DRangeScan.h>
+#include <mrpt/slam/CICP.h>
+#include <mrpt/poses/CPose2D.h>
+#include <mrpt/poses/CPosePDF.h>
+#include <mrpt/poses/CPosePDFGaussian.h>
+#include <mrpt/poses/CPosePDFGaussianInf.h>
+#include <mrpt/gui.h>
+#include <mrpt/math/utils.h>
+#include <mrpt/utils/types.h>
+#include <mrpt/poses/CPose2D.h>
+
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -32,6 +45,28 @@ class CCExample {
 	
 public:
     
+	mrpt::slam::CICP					ICP;
+	CCExample()
+	{
+	  using namespace mrpt;
+	  using namespace mrpt::utils;
+	  using namespace mrpt::slam;
+	  using namespace mrpt::maps;
+	  using namespace mrpt::obs;
+	  using namespace mrpt::math;
+	  using namespace mrpt::poses;
+			//ICP.options.ICP_algorithm = icpLevenbergMarquardt;
+				ICP.options.ICP_algorithm = icpClassic;
+				//ICP.options.ICP_algorithm = (TICPAlgorithm)ICP_method;
+		
+				  ICP.options.maxIterations		= 100;
+					ICP.options.thresholdAng	  = DEG2RAD(10.0f);
+					  ICP.options.thresholdDist		= 0.75f;
+						ICP.options.ALFA		  = 0.5f;
+						  ICP.options.smallestThresholdDist	= 0.05f;
+							ICP.options.doRANSAC = false;
+		
+							}
     typedef pcl::PCLPointCloud2 PCloud;
     
 	// ------- intended python API ---------------------------------------------
@@ -46,6 +81,13 @@ public:
 
     std::map<std::string, float> getPointXYZCloudDetails(std::string cloudName);
     	
+	void processICP();
+
+	bool loadPointCloudFrom2DArrays(const std::string& destCloud,
+		int n,
+		float *xarr,
+		float *yarr);
+
 	bool loadPointCloudFromArrays(const std::string& destCloud,
                                   int n,
                                   float *xarr,
