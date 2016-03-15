@@ -44,12 +44,13 @@ void transferPclPointCloudToXYPointsMap(CCExample::PCloud::Ptr &input_pc,  CSimp
     pcl::PointXYZ _point = cloud.points.at(next);
     xs.push_back(_point.x);
     ys.push_back(_point.y);
+    //if (next == 0) {cout << _point.x << " " << _point.y << endl;}
   }
   point_map->setAllPoints(xs, ys);
 
 }
 
-void CCExample::processICP()
+void CCExample::processICP(float init_x, float init_y, float init_yaw)
 {
   stringstream ss;
   if ( pointClouds.find("ref_map") == pointClouds.end() || pointClouds.find("que_map") == pointClouds.end() )
@@ -65,7 +66,8 @@ void CCExample::processICP()
   transferPclPointCloudToXYPointsMap(pointClouds[string("que_map")], &g_m2);
   float					runningTime;
   CICP::TReturnInfo		info;
-  CPose2D		initialPose(0.0f,0.0f,(float)DEG2RAD(0.0f));
+  //CPose2D		initialPose(0.0f,0.0f,(float)DEG2RAD(0.0f));
+  CPose2D		initialPose(init_x,init_y,(float)DEG2RAD(init_yaw));
 
   CPosePDFPtr pdf = ICP.Align(
       &g_m1,
@@ -100,6 +102,7 @@ void CCExample::processICP()
 
   mrpt::math::CVectorDouble icp_result;
   pdf->getMeanVal().getAsVector(icp_result);
+  cout << icp_result << endl;
 
 }
 
