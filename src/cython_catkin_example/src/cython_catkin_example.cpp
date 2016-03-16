@@ -35,16 +35,18 @@ using namespace pcl;
 
 void transferPclPointCloudToXYPointsMap(CCExample::PCloud::Ptr &input_pc,  CSimplePointsMap*  point_map)
 {
-  pcl::PointCloud<pcl::PointXYZ> cloud;
-  pcl:;fromPCLPointCloud2(*input_pc, cloud);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+  //pcl::fromPCLPointCloud2(*input_pc, cloud);
+  cloud = CCExample::specializeCloud<pcl::PointXYZ>(input_pc);
   std::vector<float> xs, ys;
-  for (size_t next = 0; next < cloud.points.size(); ++next)
+  //std::cout << "transfer: " << cloud->points.size() << std::endl;
+  for (size_t next = 0; next < cloud->points.size(); ++next)
   {
     //velodyne_pointcloud::PointXYZIR _point = input_pc->points.at(next);
-    pcl::PointXYZ _point = cloud.points.at(next);
+    pcl::PointXYZ _point = cloud->points.at(next);
     xs.push_back(_point.x);
     ys.push_back(_point.y);
-    //if (next == 0) {cout << _point.x << " " << _point.y << endl;}
+    //if (next == 100) {cout << _point.x << " " << _point.y << endl;}
   }
   point_map->setAllPoints(xs, ys);
 

@@ -65,6 +65,7 @@ public:
 						ICP.options.ALFA		  = 0.5f;
 						  ICP.options.smallestThresholdDist	= 0.05f;
 							ICP.options.doRANSAC = false;
+							//std::cout << "initialized CCExample\n";
 		
 							}
     typedef pcl::PCLPointCloud2 PCloud;
