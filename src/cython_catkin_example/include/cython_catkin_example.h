@@ -81,7 +81,7 @@ public:
 
     std::map<std::string, float> getPointXYZCloudDetails(std::string cloudName);
     	
-	void processICP(float init_x, float init_y, float init_yaw);
+	std::vector<float> processICP(float init_x, float init_y, float init_yaw);
 
 	bool loadPointCloudFrom2DArrays(const std::string& destCloud,
 		int n,

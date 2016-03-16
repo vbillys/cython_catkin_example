@@ -50,15 +50,16 @@ void transferPclPointCloudToXYPointsMap(CCExample::PCloud::Ptr &input_pc,  CSimp
 
 }
 
-void CCExample::processICP(float init_x, float init_y, float init_yaw)
+std::vector<float> CCExample::processICP(float init_x, float init_y, float init_yaw)
 {
   stringstream ss;
+  std::vector<float> result;
   if ( pointClouds.find("ref_map") == pointClouds.end() || pointClouds.find("que_map") == pointClouds.end() )
   {
     cout << "cannot icp, ref or que not available" << endl;
-    return;
+    return result;
   }
-  cout << "Processing yeah" << endl;
+  //cout << "Processing yeah" << endl;
   //pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
   //pcl::fromROSMsg(*cloud_msg , *cloud);
   CSimplePointsMap		g_m1,g_m2;
@@ -78,13 +79,13 @@ void CCExample::processICP(float init_x, float init_y, float init_yaw)
       &runningTime,
       (void*)&info);
 
-  printf("ICP run in %.02fms, %d iterations (%.02fms/iter), %.01f%% goodness\n -> ",
-      runningTime*1000,
-      info.nIterations,
-      runningTime*1000.0f/info.nIterations,
-      info.goodness*100 );
+  //printf("ICP run in %.02fms, %d iterations (%.02fms/iter), %.01f%% goodness\n -> ",
+      //runningTime*1000,
+      //info.nIterations,
+      //runningTime*1000.0f/info.nIterations,
+      //info.goodness*100 );
 
-  cout << "Mean of estimation: " << pdf->getMeanVal() << endl<< endl;
+  //cout << "Mean of estimation: " << pdf->getMeanVal() << endl<< endl;
 
   CPosePDFGaussian  gPdf;
   gPdf.copyFrom(*pdf);
@@ -93,16 +94,30 @@ void CCExample::processICP(float init_x, float init_y, float init_yaw)
   gInf.getInformationMatrix(information_matrix);
 
 
-  cout << "Covariance of estimation: " << endl << gPdf.cov << endl;
-  cout << "Information of estimation: " << endl << information_matrix << endl;
+  //cout << "Covariance of estimation: " << endl << gPdf.cov << endl;
+  //cout << "Information of estimation: " << endl << information_matrix << endl;
 
-  cout << " std(x): " << sqrt( gPdf.cov(0,0) ) << endl;
-  cout << " std(y): " << sqrt( gPdf.cov(1,1) ) << endl;
-  cout << " std(phi): " << RAD2DEG(sqrt( gPdf.cov(2,2) )) << " (deg)" << endl;
+  //cout << " std(x): " << sqrt( gPdf.cov(0,0) ) << endl;
+  //cout << " std(y): " << sqrt( gPdf.cov(1,1) ) << endl;
+  //cout << " std(phi): " << RAD2DEG(sqrt( gPdf.cov(2,2) )) << " (deg)" << endl;
 
   mrpt::math::CVectorDouble icp_result;
   pdf->getMeanVal().getAsVector(icp_result);
-  cout << icp_result << endl;
+  //cout << icp_result << endl;
+
+  //result[0] = icp_result[0];
+  //result[1] = icp_result[1];
+  //result[2] = icp_result[2];
+  result.push_back(icp_result[0]);
+  result.push_back(icp_result[1]);
+  result.push_back(icp_result[2]);
+  result.push_back(information_matrix(0,0));
+  result.push_back(information_matrix(0,1));
+  result.push_back(information_matrix(1,1));
+  result.push_back(information_matrix(2,2));
+  result.push_back(information_matrix(0,2));
+  result.push_back(information_matrix(1,2));
+  return result;
 
 }
 

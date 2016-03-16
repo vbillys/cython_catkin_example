@@ -25,7 +25,7 @@ cdef extern from "cython_catkin_example.h":
         bool loadPointCloudFromFile(string cloudName, string fileName)
         void loadPointCloudFromArrays(string destCloud, int n, float *xarr, float *yarr, float *zarr)
         void loadPointCloudFrom2DArrays(string destCloud, int n, float *xarr, float *yarr)
-        void processICP(float init_x, float init_y, float init_yaw);
+        vector[float] processICP(float init_x, float init_y, float init_yaw);
         
 cdef class PyCCExample:
     cdef CCExample *thisptr
@@ -62,4 +62,4 @@ cdef class PyCCExample:
         l = len(xarr)
         self.thisptr.loadPointCloudFrom2DArrays(dest_cloud, l, <float*> xarr.data,<float*> yarr.data)
     def processICP(self, init_x=0, init_y=0, init_yaw=0):
-        self.thisptr.processICP(<float>init_x, <float>init_y, <float>init_yaw)
+        return self.thisptr.processICP(<float>init_x, <float>init_y, <float>init_yaw)
