@@ -25,7 +25,8 @@ cdef extern from "cython_catkin_example.h":
         bool loadPointCloudFromFile(string cloudName, string fileName)
         void loadPointCloudFromArrays(string destCloud, int n, float *xarr, float *yarr, float *zarr)
         void loadPointCloudFrom2DArrays(string destCloud, int n, float *xarr, float *yarr)
-        vector[float] processICP(float init_x, float init_y, float init_yaw);
+        #vector[float] processICP(float init_x, float init_y, float init_yaw);
+        vector[float] processICP(float init_x, float init_y, float init_yaw, float *xarr_ref, float *yarr_ref, float *xarr_que, float *yarr_que, int n1, int n2);
         
 cdef class PyCCExample:
     cdef CCExample *thisptr
@@ -61,5 +62,18 @@ cdef class PyCCExample:
         #cdef cnp.ndarray zarr = arr[:,2]
         l = len(xarr)
         self.thisptr.loadPointCloudFrom2DArrays(dest_cloud, l, <float*> xarr.data,<float*> yarr.data)
-    def processICP(self, init_x=0, init_y=0, init_yaw=0):
-        return self.thisptr.processICP(<float>init_x, <float>init_y, <float>init_yaw)
+    #def processICP(self, init_x=0, init_y=0, init_yaw=0,cnp.ndarray[float,ndim=2] arr_ref,cnp.ndarray[float,ndim=2] arr_que):
+    def processICP(self,cnp.ndarray[float,ndim=2] arr_ref,cnp.ndarray[float,ndim=2] arr_que, init_x=0, init_y=0, init_yaw=0):
+        assert arr_ref.shape[1] == 2
+        assert arr_ref.shape[0] > 0
+        cdef cnp.ndarray xarr_ref = arr_ref[:,0]
+        cdef cnp.ndarray yarr_ref = arr_ref[:,1]
+        assert arr_que.shape[1] == 2
+        assert arr_que.shape[0] > 0
+        cdef cnp.ndarray xarr_que = arr_que[:,0]
+        cdef cnp.ndarray yarr_que = arr_que[:,1]
+        l1 = len(xarr_ref)
+        l2 = len(xarr_que)
+        return self.thisptr.processICP(<float>init_x, <float>init_y, <float>init_yaw, <float*>xarr_ref.data,<float*>yarr_ref.data,<float*>xarr_que.data, <float*>yarr_que.data,l1,l2)
+
+

@@ -52,21 +52,35 @@ void transferPclPointCloudToXYPointsMap(CCExample::PCloud::Ptr &input_pc,  CSimp
 
 }
 
-std::vector<float> CCExample::processICP(float init_x, float init_y, float init_yaw)
+void transferArrayToXYPointsMap(float* xss, float* yss, int n , CSimplePointsMap* point_map)
+{
+
+  std::vector<float> xs, ys;
+  for (int next = 0; next < n; ++next)
+  {
+    xs.push_back(xss[next]);
+    ys.push_back(yss[next]);
+  }
+  point_map->setAllPoints(xs, ys);
+}
+
+std::vector<float> CCExample::processICP(float init_x, float init_y, float init_yaw, float* ref_xs, float* ref_ys, float* que_xs, float* que_ys, int n1, int n2)
 {
   stringstream ss;
   std::vector<float> result;
-  if ( pointClouds.find("ref_map") == pointClouds.end() || pointClouds.find("que_map") == pointClouds.end() )
-  {
-    cout << "cannot icp, ref or que not available" << endl;
-    return result;
-  }
+  //if ( pointClouds.find("ref_map") == pointClouds.end() || pointClouds.find("que_map") == pointClouds.end() )
+  //{
+    //cout << "cannot icp, ref or que not available" << endl;
+    //return result;
+  //}
   //cout << "Processing yeah" << endl;
   //pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
   //pcl::fromROSMsg(*cloud_msg , *cloud);
   CSimplePointsMap		g_m1,g_m2;
-  transferPclPointCloudToXYPointsMap(pointClouds[string("ref_map")], &g_m1);
-  transferPclPointCloudToXYPointsMap(pointClouds[string("que_map")], &g_m2);
+  //transferPclPointCloudToXYPointsMap(pointClouds[string("ref_map")], &g_m1);
+  //transferPclPointCloudToXYPointsMap(pointClouds[string("que_map")], &g_m2);
+  transferArrayToXYPointsMap(ref_xs, ref_ys, n1, &g_m1);
+  transferArrayToXYPointsMap(que_xs, que_ys, n2, &g_m2);
   float					runningTime;
   CICP::TReturnInfo		info;
   //CPose2D		initialPose(0.0f,0.0f,(float)DEG2RAD(0.0f));
