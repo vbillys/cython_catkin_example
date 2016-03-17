@@ -20,6 +20,10 @@
 
 #include <pcl/io/pcd_io.h>
 
+#include <iostream>
+#include <fstream>
+
+
 using namespace mrpt;
 using namespace mrpt::utils;
 using namespace mrpt::slam;
@@ -55,17 +59,40 @@ void transferPclPointCloudToXYPointsMap(CCExample::PCloud::Ptr &input_pc,  CSimp
 void transferArrayToXYPointsMap(float* xss, float* yss, int n , CSimplePointsMap* point_map)
 {
 
+  //char buffer[]= "debug_scan.txt";
+  //ofstream fos(buffer);
   std::vector<float> xs, ys;
   for (int next = 0; next < n; ++next)
   {
     xs.push_back(xss[next]);
     ys.push_back(yss[next]);
+    //fos<< fixed << setprecision(6) << xss[next] << " " << yss[next] << endl;
   }
   point_map->setAllPoints(xs, ys);
 }
 
 std::vector<float> CCExample::processICP(float init_x, float init_y, float init_yaw, float* ref_xs, float* ref_ys, float* que_xs, float* que_ys, int n1, int n2)
 {
+  mrpt::slam::CICP					ICP;
+
+  using namespace mrpt;
+  using namespace mrpt::utils;
+  using namespace mrpt::slam;
+  using namespace mrpt::maps;
+  using namespace mrpt::obs;
+  using namespace mrpt::math;
+  using namespace mrpt::poses;
+  //ICP.options.ICP_algorithm = icpLevenbergMarquardt;
+  ICP.options.ICP_algorithm = icpClassic;
+  //ICP.options.ICP_algorithm = (TICPAlgorithm)ICP_method;
+
+  ICP.options.maxIterations		= 100;
+  ICP.options.thresholdAng	  = DEG2RAD(10.0f);
+  ICP.options.thresholdDist		= 0.75f;
+  ICP.options.ALFA		  = 0.5f;
+  ICP.options.smallestThresholdDist	= 0.05f;
+  ICP.options.doRANSAC = false;
+
   stringstream ss;
   std::vector<float> result;
   //if ( pointClouds.find("ref_map") == pointClouds.end() || pointClouds.find("que_map") == pointClouds.end() )
@@ -83,8 +110,8 @@ std::vector<float> CCExample::processICP(float init_x, float init_y, float init_
   transferArrayToXYPointsMap(que_xs, que_ys, n2, &g_m2);
   float					runningTime;
   CICP::TReturnInfo		info;
-  //CPose2D		initialPose(0.0f,0.0f,(float)DEG2RAD(0.0f));
-  CPose2D		initialPose(init_x,init_y,(float)DEG2RAD(init_yaw));
+  CPose2D		initialPose(0.0f,0.0f,(float)DEG2RAD(0.0f));
+  //CPose2D		initialPose(init_x,init_y,(float)DEG2RAD(init_yaw));
 
   CPosePDFPtr pdf = ICP.Align(
       &g_m1,
@@ -95,13 +122,13 @@ std::vector<float> CCExample::processICP(float init_x, float init_y, float init_
       &runningTime,
       (void*)&info);
 
-  //printf("ICP run in %.02fms, %d iterations (%.02fms/iter), %.01f%% goodness\n -> ",
-      //runningTime*1000,
-      //info.nIterations,
-      //runningTime*1000.0f/info.nIterations,
-      //info.goodness*100 );
+  printf("ICP run in %.02fms, %d iterations (%.02fms/iter), %.01f%% goodness\n -> ",
+      runningTime*1000,
+      info.nIterations,
+      runningTime*1000.0f/info.nIterations,
+      info.goodness*100 );
 
-  //cout << "Mean of estimation: " << pdf->getMeanVal() << endl<< endl;
+  cout << "Mean of estimation: " << pdf->getMeanVal() << endl<< endl;
 
   CPosePDFGaussian  gPdf;
   gPdf.copyFrom(*pdf);
@@ -110,29 +137,29 @@ std::vector<float> CCExample::processICP(float init_x, float init_y, float init_
   gInf.getInformationMatrix(information_matrix);
 
 
-  //cout << "Covariance of estimation: " << endl << gPdf.cov << endl;
-  //cout << "Information of estimation: " << endl << information_matrix << endl;
+  cout << "Covariance of estimation: " << endl << gPdf.cov << endl;
+  cout << "Information of estimation: " << endl << information_matrix << endl;
 
-  //cout << " std(x): " << sqrt( gPdf.cov(0,0) ) << endl;
-  //cout << " std(y): " << sqrt( gPdf.cov(1,1) ) << endl;
-  //cout << " std(phi): " << RAD2DEG(sqrt( gPdf.cov(2,2) )) << " (deg)" << endl;
+  cout << " std(x): " << sqrt( gPdf.cov(0,0) ) << endl;
+  cout << " std(y): " << sqrt( gPdf.cov(1,1) ) << endl;
+  cout << " std(phi): " << RAD2DEG(sqrt( gPdf.cov(2,2) )) << " (deg)" << endl;
 
   mrpt::math::CVectorDouble icp_result;
   pdf->getMeanVal().getAsVector(icp_result);
-  //cout << icp_result << endl;
+  cout << icp_result << endl;
 
   //result[0] = icp_result[0];
   //result[1] = icp_result[1];
   //result[2] = icp_result[2];
-  result.push_back(icp_result[0]);
-  result.push_back(icp_result[1]);
-  result.push_back(icp_result[2]);
-  result.push_back(information_matrix(0,0));
-  result.push_back(information_matrix(0,1));
-  result.push_back(information_matrix(1,1));
-  result.push_back(information_matrix(2,2));
-  result.push_back(information_matrix(0,2));
-  result.push_back(information_matrix(1,2));
+  result.push_back((float)icp_result[0]);
+  result.push_back((float)icp_result[1]);
+  result.push_back((float)icp_result[2]);
+  result.push_back((float)information_matrix(0,0));
+  result.push_back((float)information_matrix(0,1));
+  result.push_back((float)information_matrix(1,1));
+  result.push_back((float)information_matrix(2,2));
+  result.push_back((float)information_matrix(0,2));
+  result.push_back((float)information_matrix(1,2));
   return result;
 
 }

@@ -63,15 +63,20 @@ cdef class PyCCExample:
         l = len(xarr)
         self.thisptr.loadPointCloudFrom2DArrays(dest_cloud, l, <float*> xarr.data,<float*> yarr.data)
     #def processICP(self, init_x=0, init_y=0, init_yaw=0,cnp.ndarray[float,ndim=2] arr_ref,cnp.ndarray[float,ndim=2] arr_que):
-    def processICP(self,cnp.ndarray[float,ndim=2] arr_ref,cnp.ndarray[float,ndim=2] arr_que, init_x=0, init_y=0, init_yaw=0):
-        assert arr_ref.shape[1] == 2
-        assert arr_ref.shape[0] > 0
-        cdef cnp.ndarray xarr_ref = arr_ref[:,0]
-        cdef cnp.ndarray yarr_ref = arr_ref[:,1]
-        assert arr_que.shape[1] == 2
-        assert arr_que.shape[0] > 0
-        cdef cnp.ndarray xarr_que = arr_que[:,0]
-        cdef cnp.ndarray yarr_que = arr_que[:,1]
+    #def processICP(self,cnp.ndarray[float,ndim=2] arr_ref,cnp.ndarray[float,ndim=2] arr_que, init_x=0, init_y=0, init_yaw=0):
+    def processICP(self,float[:]xarray_ref, float[:]yarray_ref, float[:]xarray_que, float[:]yarray_que, init_x=0, init_y=0, init_yaw=0):
+        #assert arr_ref.shape[1] == 2
+        #assert arr_ref.shape[0] > 0
+        #cdef cnp.ndarray xarr_ref = arr_ref[:,0]
+        #cdef cnp.ndarray yarr_ref = arr_ref[:,1]
+        #assert arr_que.shape[1] == 2
+        #assert arr_que.shape[0] > 0
+        #cdef cnp.ndarray xarr_que = arr_que[:,0]
+        #cdef cnp.ndarray yarr_que = arr_que[:,1]
+        cdef cnp.ndarray xarr_ref = np.array(xarray_ref,np.float32)
+        cdef cnp.ndarray yarr_ref = np.array(yarray_ref,np.float32)
+        cdef cnp.ndarray xarr_que = np.array(xarray_que,np.float32)
+        cdef cnp.ndarray yarr_que = np.array(yarray_que,np.float32)
         l1 = len(xarr_ref)
         l2 = len(xarr_que)
         return self.thisptr.processICP(<float>init_x, <float>init_y, <float>init_yaw, <float*>xarr_ref.data,<float*>yarr_ref.data,<float*>xarr_que.data, <float*>yarr_que.data,l1,l2)

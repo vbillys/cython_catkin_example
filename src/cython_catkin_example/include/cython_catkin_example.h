@@ -45,26 +45,26 @@ class CCExample {
 	
 public:
     
-	mrpt::slam::CICP					ICP;
+	//mrpt::slam::CICP					ICP;
 	CCExample()
 	{
-	  using namespace mrpt;
-	  using namespace mrpt::utils;
-	  using namespace mrpt::slam;
-	  using namespace mrpt::maps;
-	  using namespace mrpt::obs;
-	  using namespace mrpt::math;
-	  using namespace mrpt::poses;
-			//ICP.options.ICP_algorithm = icpLevenbergMarquardt;
-				ICP.options.ICP_algorithm = icpClassic;
-				//ICP.options.ICP_algorithm = (TICPAlgorithm)ICP_method;
+	  //using namespace mrpt;
+	  //using namespace mrpt::utils;
+	  //using namespace mrpt::slam;
+	  //using namespace mrpt::maps;
+	  //using namespace mrpt::obs;
+	  //using namespace mrpt::math;
+	  //using namespace mrpt::poses;
+			////ICP.options.ICP_algorithm = icpLevenbergMarquardt;
+				//ICP.options.ICP_algorithm = icpClassic;
+				////ICP.options.ICP_algorithm = (TICPAlgorithm)ICP_method;
 		
-				  ICP.options.maxIterations		= 100;
-					ICP.options.thresholdAng	  = DEG2RAD(10.0f);
-					  ICP.options.thresholdDist		= 0.75f;
-						ICP.options.ALFA		  = 0.5f;
-						  ICP.options.smallestThresholdDist	= 0.05f;
-							ICP.options.doRANSAC = false;
+				  //ICP.options.maxIterations		= 100;
+					//ICP.options.thresholdAng	  = DEG2RAD(10.0f);
+					  //ICP.options.thresholdDist		= 0.75f;
+						//ICP.options.ALFA		  = 0.5f;
+						  //ICP.options.smallestThresholdDist	= 0.05f;
+							//ICP.options.doRANSAC = false;
 							//std::cout << "initialized CCExample\n";
 		
 							}
