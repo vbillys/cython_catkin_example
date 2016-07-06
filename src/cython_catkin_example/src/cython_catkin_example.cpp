@@ -27,8 +27,8 @@
 using namespace mrpt;
 using namespace mrpt::utils;
 using namespace mrpt::slam;
-using namespace mrpt::maps;
-using namespace mrpt::obs;
+//using namespace mrpt::maps;
+//using namespace mrpt::obs;
 using namespace mrpt::math;
 using namespace mrpt::poses;
 
@@ -78,8 +78,8 @@ std::vector<float> CCExample::processICP(float init_x, float init_y, float init_
   using namespace mrpt;
   using namespace mrpt::utils;
   using namespace mrpt::slam;
-  using namespace mrpt::maps;
-  using namespace mrpt::obs;
+  //using namespace mrpt::maps;
+  //using namespace mrpt::obs;
   using namespace mrpt::math;
   using namespace mrpt::poses;
   //ICP.options.ICP_algorithm = icpLevenbergMarquardt;
@@ -144,7 +144,8 @@ std::vector<float> CCExample::processICP(float init_x, float init_y, float init_
   cout << " std(y): " << sqrt( gPdf.cov(1,1) ) << endl;
   cout << " std(phi): " << RAD2DEG(sqrt( gPdf.cov(2,2) )) << " (deg)" << endl;
 
-  mrpt::math::CVectorDouble icp_result;
+  //mrpt::math::CVectorDouble icp_result;
+  CVectorDouble icp_result;
   pdf->getMeanVal().getAsVector(icp_result);
   cout << icp_result << endl;
 

@@ -3,14 +3,14 @@ project(cython_catkin_example)
 
 find_package(catkin REQUIRED COMPONENTS pcl_conversions pcl_ros)
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(MRPT REQUIRED slam;vision;gui;topography)
 find_package(PCL 1.3 REQUIRED COMPONENTS common io filters surface kdtree visualization features)
 
 catkin_python_setup()
 
 catkin_package(
-  DEPENDS eigen
+  DEPENDS Eigen3
 )
 
 include_directories(${catkin_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} /usr/local/include)
